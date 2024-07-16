@@ -1,0 +1,97 @@
+Function App
+    Import necessary dependencies and components
+    Initialize state: employees (useState, empty array)
+    Initialize state: showAddForm (useState, false)
+    Initialize state: formData (useState, empty object)
+
+    Use useEffect to load employees from localStorage when the component mounts
+        If localStorage has "employees"
+            Set employees state to parsed data from localStorage
+        End If
+    End useEffect
+
+    Function addEmployee
+        Set employees state to current employees plus new employee from formData
+        Save new employees array to localStorage
+        Set showAddForm to false
+        Reset formData to empty object
+    End Function
+
+    Function removeEmployee(employeeId)
+        Filter out the employee with the given ID from the employees state
+        Set employees state to filtered employees
+        Save updated employees array to localStorage
+    End Function
+
+    Return
+        Render Sidebar component
+        Render main content area
+            If showAddForm is true
+                Render AddEmployeeForm component with addEmployee function and formData state
+            Else
+                Render EmployeeList component with employees and removeEmployee function
+            End If
+        Render "Add New Employee" button
+            OnClick
+                Set showAddForm to true
+            End OnClick
+        End Render
+    End Return
+End Function
+
+Function Sidebar
+    Return
+        Render sidebar with navigation links
+        Render "Employees" link
+            OnClick
+                Navigate to Employees section
+            End OnClick
+        End Render
+    End Return
+End Function
+
+Function EmployeeList({ employees, removeEmployee })
+    Return
+        Render a search bar for filtering employees
+        For each employee in employees
+            Render EmployeeCard component with employee data and removeEmployee function
+        End For
+    End Return
+End Function
+
+Function EmployeeCard({ employee, removeEmployee })
+    Return
+        Render employee's image
+        Render employee's name
+        Render employee's email
+        Render employee's phone number
+        Render "Delete" button
+            OnClick
+                Call removeEmployee with employee's ID
+            End OnClick
+        End Render
+    End Return
+End Function
+
+Function AddEmployeeForm({ addEmployee, formData, setFormData })
+    Function handleChange(event)
+        Update formData state with new input values
+    End Function
+
+    Function handleSubmit(event)
+        Prevent default form submission
+        Call addEmployee function
+    End Function
+
+    Return
+        Render form with inputs for employee details (name, surname, email, phone, etc.)
+        OnChange for each input
+            Call handleChange with event
+        End OnChange
+        Render "Submit" button
+            OnClick
+                Call handleSubmit
+            End OnClick
+        End Render
+    End Return
+End Function

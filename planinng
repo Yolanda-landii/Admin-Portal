@@ -1,0 +1,58 @@
+App (Main Container)
+
+  - employees: This keeps a list of all the employees, each represented as an object with their details like name, email, etc.
+  - searchTerm: This is a string that helps us filter through the list of employees based on what we type in a search bar.
+  - selectedEmployee: This holds the details of the employee we currently have selected for editing. 
+  - When the app starts, it loads the list of employees from the browser's storage (localStorage).
+  - Whenever we make changes to the list of employees, it saves those changes back to localStorage so they're stored even if we close and reopen the app.
+  - addEmployee(employee): Adds a new employee to our list.
+  - updateEmployee(employee): Updates an existing employee's details.
+  - deleteEmployee(employeeID): Deletes an employee from our list based on their unique ID.
+  - handleSearch(term):  Updates the search term we're using to filter employees based on what the user types.
+  - Displays different parts of our application's user interface (UI):
+  - header that says "Employee Management Portal".
+  - A search bar that lets us type in a term to filter employees.
+  - A form to add new employees.
+  - A list of employees that shows their basic details.
+  - A modal (a popup window) that appears when we want to edit an employee's details.
+
+
+AddEmployeeForm
+  - employee: This object holds all the details of the employee we're currently adding, such as their name, email, and so on.
+  - handleChange(event):  Updates the employee state whenever we type something into the form fields.
+  - handleSubmit(event): When we click the submit button, this function prevents the default action (like refreshing the page), adds the new employee to our list using the addEmployee function passed from the App component, and resets the form fields.
+  - Form: Shows a form with fields where we can enter details like name, email, position, etc.
+  - Submit Button: Displays a submit button that we click to add the employee.
+
+
+EmployeeList
+  - employees: This is a list of employee objects passed down from the App component.
+  - setSelectedEmployee: A function passed down from the App component that lets us
+  - deleteEmployee:  A function passed down from the App component that allows us to delete an employee from the list.
+  - Maps over the employees list and renders an EmployeeCard component for each employee.
+  - Each EmployeeCard component displays basic information about the employee, such as their name, position, and a way to edit or delete them.
+
+
+EmployeeCard
+  - employee:  An object containing details of a single employee passed down from the EmployeeList component.
+  - setSelectedEmployee: A function passed down from the EmployeeList component that allows us to select this employee for editing.
+  - deleteEmployee: A function passed down from the EmployeeList component that allows us to delete this employee.
+  - Shows a card or container with the employee's image (if available) and their details like name, position, etc.
+  - Includes buttons to edit or delete the employee.
+
+
+SearchBar 
+  - setSearchTerm: A function passed down from the App component that allows us to update the search term. 
+  - handleChange(event): Updates the search term whenever we type something into the search bar.
+  - Displays an input field where we can type in the name of an employee to filter the list shown in the EmployeeList component.
+
+Modal
+  - employee:  The details of the employee we're currently editing, passed down from the App component.
+  - updateEmployee: A function passed down from the App component that allows us to save the updated details of the employee.
+  - A function passed down from the App component that allows us to close the modal.
+  - updatedEmployee: Holds the updated details of the employee being edited. 
+  - Updates the updatedEmployee state whenever we change something in the form fields.
+  - When we click the save button, this function prevents the default action, updates the employee's details using the updateEmployee function, and closes the modal using the closeModal function. 
+  - Shows a form within the modal with fields pre-filled with the employee's current details.
+  - Includes buttons to save the changes or cancel (close) the modal.
+ 
