@@ -3,24 +3,31 @@ import EmployeeCard from './employees';
 // import './EmployeeList.css';
 
 function EmployeeList({ employees, removeEmployee }) {
-    const [searchTerm, setSearchTerm] = useState('');
+    const [search, setSearch] = useState('');
 
     const filteredEmployees = employees.filter(employee =>
-        employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.surname.toLowerCase().includes(searchTerm.toLowerCase())
+        employee.name.toLowerCase().includes(search.toLowerCase()) ||
+        employee.surname.toLowerCase().includes(search.toLowerCase()) ||
+        employee.email.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
         <div className="employee-list">
             <input
                 type="text"
-                placeholder="Search employees..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
             />
-            {filteredEmployees.map((employee, index) => (
-                <EmployeeCard key={index} employee={employee} removeEmployee={() => removeEmployee(index)} />
-            ))}
+            <div className="employee-cards">
+                {filteredEmployees.map(employee => (
+                    <EmployeeCard
+                        key={employee.email}
+                        employee={employee}
+                        removeEmployee={removeEmployee}
+                    />
+                ))}
+            </div>
         </div>
     );
 }
