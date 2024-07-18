@@ -7,7 +7,15 @@ import './App.css';
 function App() {
     const [employees, setEmployees] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState({
+        name: '',
+        surname: '',
+        email: '',
+        phone: '',
+        role: '',
+        startDate: '',
+        image: ''
+    });
     const [showEmployeesList, setShowEmployeesList] = useState(false);
 
     useEffect(() => {
@@ -22,7 +30,16 @@ function App() {
         setEmployees(newEmployees);
         localStorage.setItem('employees', JSON.stringify(newEmployees));
         setShowAddForm(false);
-        setFormData({});
+        setFormData({
+            name: '',
+            surname: '',
+            email: '',
+            phone: '',
+            role: '',
+            startDate: '',
+            image: ''
+        });
+        setShowEmployeesList(true); // Show employee list after adding
     };
 
     const removeEmployee = (email) => {

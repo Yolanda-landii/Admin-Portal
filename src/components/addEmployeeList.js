@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import EmployeeCard from './employees'; 
-// import './addEmployeeList.css'; 
+import EmployeeCard from './employees';
 
 function EmployeeList({ employees, removeEmployee, updateEmployee }) {
     const [search, setSearch] = useState('');
 
     const filteredEmployees = employees.filter(employee =>
-        employee.name.toLowerCase().includes(search.toLowerCase()) ||
-        employee.surname.toLowerCase().includes(search.toLowerCase()) ||
-        employee.email.toLowerCase().includes(search.toLowerCase())
+        (employee.name && employee.name.toLowerCase().includes(search.toLowerCase())) ||
+        (employee.surname && employee.surname.toLowerCase().includes(search.toLowerCase())) ||
+        (employee.email && employee.email.toLowerCase().includes(search.toLowerCase()))
     );
 
     return (

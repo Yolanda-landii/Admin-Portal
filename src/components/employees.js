@@ -19,35 +19,58 @@ function EmployeeCard({ employee, removeEmployee, updateEmployee }) {
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setEditedEmployee({ ...editedEmployee, [name]: value });
+        const { name, value, files } = e.target;
+        if (name === 'image' && files[0]) {
+            const file = files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditedEmployee({ ...editedEmployee, image: reader.result });
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setEditedEmployee({ ...editedEmployee, [name]: value });
+        }
     };
 
     return (
+ 
         <div className="employee-card">
-            <img src={editedEmployee.image || 'default-image.jpg'} alt={editedEmployee.name} />
             <div className="employee-details">
                 {isEditing ? (
                     <>
+                        <input type="text" name="id" value={editedEmployee.id} onChange={handleChange} disabled />
                         <input type="text" name="name" value={editedEmployee.name} onChange={handleChange} />
-                        <input type="text" name="role" value={editedEmployee.role || ''} placeholder="Role Name" onChange={handleChange} />
+                        <input type="text" name="surname" value={editedEmployee.surname} onChange={handleChange} />
                         <input type="email" name="email" value={editedEmployee.email} onChange={handleChange} />
-                        <input type="text" name="phone" value={editedEmployee.phone} onChange={handleChange} />
-                        <input type="date" name="startDate" value={editedEmployee.startDate || ''} onChange={handleChange} />
-                        <button onClick={handleSave}>Save</button>
-                        <button onClick={handleCancel}>Cancel</button>
+                        <input type="tel" name="phone" value={editedEmployee.phone} onChange={handleChange} />
+                        <input type="text" name="position" value={editedEmployee.position} onChange={handleChange} />
+                        <input type="text" name="department" value={editedEmployee.department} onChange={handleChange} />
+                        <input type="date" name="startDate" value={editedEmployee.startDate} onChange={handleChange} />
+                        <input type="file" name="image" accept="image/*" onChange={handleChange} />
+                        {editedEmployee.image && <img src={editedEmployee.image} alt="Preview" className="image-preview" />}
                     </>
                 ) : (
                     <>
-                        <h3>{editedEmployee.name}</h3>
-                        <p>{editedEmployee.role}</p>
-                        <p>{editedEmployee.email}</p>
-                        <p>{editedEmployee.phone}</p>
+                        {editedEmployee.image && <img src={editedEmployee.image} alt="Preview" className="image-preview" />}
+                        <h3>{editedEmployee.id} {editedEmployee.name} {editedEmployee.surname}</h3>
+                        <p>Email: {editedEmployee.email}</p>
+                        <p>Phone: {editedEmployee.phone}</p>
+                        <p>Position: {editedEmployee.position}</p>
+                        <p>Department: {editedEmployee.department}</p>
                         <p>Start Date: {editedEmployee.startDate}</p>
-                        <div className="button-container">
-                            <button className="edit-button" onClick={handleEdit}>Edit</button>
-                            <button className="delete-button" onClick={() => removeEmployee(employee.email)}>Delete</button>
-                        </div>
+                    </>
+                )}
+            </div>
+            <div className="button-container">
+                {isEditing ? (
+                    <>
+                        <button className="save-button" onClick={handleSave}>Save</button>
+                        <button className="cancel-button" onClick={handleCancel}>Cancel</button>
+                    </>
+                ) : (
+                    <>
+                        <button className="edit-button" onClick={handleEdit}>Edit</button>
+                        <button className="delete-button" onClick={() => removeEmployee(employee.id)}>Delete</button>
                     </>
                 )}
             </div>
