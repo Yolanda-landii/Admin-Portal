@@ -6,6 +6,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+### `Mood Board`
+https://www.figma.com/design/RSNCc2nrg64cZznb10P7Qx/Untitled?node-id=0-1&t=PWdvHQ1qww4yUJRx-1
+
 ### `npm start`
 
 Runs the app in the development mode.\
