@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/sideBar';
 import EmployeeList from './components/addEmployeeList';
 import AddEmployeeForm from './components/employeeForm';
-import Loader from './components/Loader'; // Import Loader component
-import Alert from './components/Alert';   // Import Alert component
+import Loader from './components/Loader'; 
+import Alert from './components/Alert';  
 import './App.css';
 
 function App() {
@@ -12,12 +12,12 @@ function App() {
   const [formData, setFormData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [editEmployeeEmail, setEditEmployeeEmail] = useState('');
-  const [loading, setLoading] = useState(false);   // State for loading
-  const [alert, setAlert] = useState(null);        // State for alerts
+  const [loading, setLoading] = useState(false);   
+  const [alert, setAlert] = useState(null);      
 
   useEffect(() => {
     const fetchEmployees = async () => {
-      setLoading(true);  // Start loader
+      setLoading(true);  
       try {
         const response = await fetch('http://localhost:3001/api/employees');
         const data = await response.json();
@@ -25,14 +25,13 @@ function App() {
       } catch (error) {
         setAlert({ message: 'Error fetching employees', type: 'error' });
       } finally {
-        setLoading(false);  // Stop loader
+        setLoading(false);  
       }
     };
 
     fetchEmployees();
   }, []);
 
-  // Add employee
   const addEmployee = async () => {
     setLoading(true);
     try {
@@ -79,7 +78,6 @@ function App() {
     }
   };
 
-  // Update employee
   const updateEmployee = async () => {
     setLoading(true);
     try {
@@ -128,7 +126,6 @@ function App() {
     }
   };
 
-  // Remove employee
   const removeEmployee = async (email) => {
     setLoading(true);
     try {
@@ -146,7 +143,6 @@ function App() {
     }
   };
 
-  // Set form data for editing
   const handleEditEmployee = (employee) => {
     setFormData(employee);
     setShowAddForm(true);
@@ -158,8 +154,8 @@ function App() {
     <div className="app">
       <Sidebar />
       <div className="main-content">
-        {loading && <Loader />}  {/* Show loader when loading */}
-        {alert && <Alert message={alert.message} type={alert.type} />} {/* Show alert messages */}
+        {loading && <Loader />}  
+        {alert && <Alert message={alert.message} type={alert.type} />} 
         
         {showAddForm ? (
           <AddEmployeeForm
