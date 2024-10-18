@@ -1,15 +1,14 @@
 import React from 'react';
-// import './Sidebar.css';
 
-function Sidebar() {
-    return (
-        <div className="sidebar">
-            <h2>Navigation</h2>
-            <ul>
-                <li><a href="#employees">Employees</a></li>
-            </ul>
-        </div>
-    );
-}
+
+const Sidebar = ({ setShowAddForm, handleLogout }) => {
+  return (
+    <div className="sidebar">
+      <h2>Employee Dashboard</h2>
+      <button onClick={() => setShowAddForm(true)}>Add New Employee</button>
+      <button onClick={handleLogout}>Sign Out</button>
+    </div>
+  );
+};
 
 export default Sidebar;
