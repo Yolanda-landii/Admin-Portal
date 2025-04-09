@@ -116,20 +116,29 @@ select.error:focus {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 1rem;
   margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e1e1e1;
+  width: 100%;
+  grid-column: 1 / -1;
 }
 
 .submit-button {
-  padding: 0.5rem 1.5rem;
+  padding: 0.4rem 1rem;
   background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 100px;
+  min-width: 80px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .submit-button:hover {

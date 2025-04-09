@@ -1,26 +1,25 @@
-# Employee Management Admin Portal
+# Admin Portal
 
-A modern, responsive admin portal for managing employee information with a comprehensive dashboard and employee management features.
-
-![Admin Portal Screenshot](screenshot.png)
+A modern web application for managing employee information with a clean and intuitive user interface.
 
 ## Features
 
-- **Dashboard**
-  - Employee statistics and metrics
-  - Role distribution visualization
-  - Recent employee activity
-
 - **Employee Management**
-  - Add, edit, and delete employees
-  - Comprehensive employee profiles
-  - Image upload support
-  - Form validation for all fields
+  - Add new employees with detailed information
+  - View employee list with search and filter capabilities
+  - Edit existing employee details
+  - Delete employees
+  - Upload and manage employee profile images
 
-- **Search and Filter**
-  - Search employees by name, surname, email, or ID
-  - Filter employees by role
-  - Responsive design for all devices
+- **User Authentication**
+  - Secure login system
+  - Protected routes for authenticated users
+  - User session management
+
+- **Responsive Design**
+  - Mobile-friendly interface
+  - Modern and clean UI
+  - Intuitive navigation
 
 ## Tech Stack
 
@@ -32,18 +31,13 @@ A modern, responsive admin portal for managing employee information with a compr
 - **Backend**
   - Node.js
   - Express.js
-  - MongoDB
+  - Firebase Admin SDK
+  - Firestore Database
+  - Firebase Storage
 
-## Backend Repository
+## Related Repositories
 
-This project is connected to the following backend repository:
-
-[EmployeeApp_Server](https://github.com/Yolanda-landii/EmployeeApp_Server/tree/employeeSecurity)
-
-The backend provides:
-- RESTful API endpoints for employee management
-- Database operations for employee data
-- File upload handling for employee images
+- **Backend Repository**: [EmployeeApp_Server](https://github.com/Yolanda-landii/EmployeeApp_Server/tree/nodeEmployeeApp)
 
 ## Getting Started
 
@@ -51,89 +45,53 @@ The backend provides:
 
 - Node.js (v14 or higher)
 - npm or yarn
-- MongoDB (for backend)
+- Firebase project with Firestore and Storage enabled
 
 ### Installation
 
-1. Clone the frontend repository:
-   ```
-   git clone https://github.com/yourusername/Admin-Portal.git
-   cd Admin-Portal
-   ```
-
-2. Install dependencies:
-   ```
-   npm install
-   ```
-
-3. Clone the backend repository:
-   ```
-   git clone https://github.com/Yolanda-landii/EmployeeApp_Server.git
-   cd EmployeeApp_Server
-   git checkout employeeSecurity
-   ```
-
-4. Install backend dependencies:
-   ```
-   npm install
-   ```
-
-5. Start the backend server:
-   ```
-   npm start
-   ```
-
-6. In a new terminal, start the frontend development server:
-   ```
-   npm start
-   ```
-
-7. Open your browser and navigate to `http://localhost:3000`
-
-## Environment Variables
-
-Create a `.env` file in the root directory with the following variables:
-
+1. Clone the repository
+```bash
+git clone [your-repository-url]
 ```
-REACT_APP_API_URL=http://localhost:5000/api
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Set up environment variables
+Create a `.env` file in the root directory with the following variables:
+```
+REACT_APP_API_URL=your_api_url
+```
+
+4. Start the development server
+```bash
+npm start
 ```
 
 ## Project Structure
 
 ```
-Admin-Portal/
-├── public/
-├── src/
-│   ├── components/
-│   │   ├── Pages/
-│   │   │   ├── Dashboard.js
-│   │   │   ├── LandingPage.js
-│   │   │   ├── Pages.css
-│   │   │   └── ...
-│   │   ├── employeeForm.js
-│   │   └── ...
-│   ├── App.js
-│   ├── index.js
-│   └── ...
-├── package.json
-└── README.md
+src/
+├── components/
+│   ├── Pages/
+│   │   ├── Dashboard.js
+│   │   ├── Login.js
+│   │   └── Pages.css
+│   ├── employeeForm.js
+│   ├── employeeForm.css
+│   └── employees.js
+├── App.js
+└── index.js
 ```
-
-## API Endpoints
-
-The application interacts with the following API endpoints:
-
-- `GET /api/employees` - Get all employees
-- `POST /api/employees` - Add a new employee
-- `PUT /api/employees/:id` - Update an employee
-- `DELETE /api/employees/:id` - Delete an employee
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ## License
@@ -145,4 +103,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [React Documentation](https://reactjs.org/)
 - [Node.js](https://nodejs.org/)
 - [Express.js](https://expressjs.com/)
-- [MongoDB](https://www.mongodb.com/)
+- [Firebase](https://firebase.google.com/)
