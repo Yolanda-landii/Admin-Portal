@@ -1,70 +1,156 @@
-# Getting Started with Create React App
+# Employee Management Admin Portal
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive admin portal for managing employee information with a comprehensive dashboard, employee management, and authentication features.
 
-## Available Scripts
+![Admin Portal Screenshot](screenshot.png)
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Authentication System**
+  - Secure login and registration
+  - JWT-based authentication
+  - Protected routes
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Dashboard**
+  - Employee statistics and metrics
+  - Role distribution visualization
+  - Recent employee activity
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Employee Management**
+  - Add, edit, and delete employees
+  - Comprehensive employee profiles
+  - Image upload support
+  - Form validation for all fields
 
-### `npm test`
+- **Search and Filter**
+  - Search employees by name, surname, email, or ID
+  - Filter employees by role
+  - Responsive design for all devices
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Tech Stack
 
-### `npm run build`
+- **Frontend**
+  - React.js
+  - CSS3 with modern styling
+  - Responsive design principles
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Backend**
+  - Node.js
+  - Express.js
+  - MongoDB
+  - JWT Authentication
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Backend Repository
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This project is connected to the following backend repository:
 
-### `npm run eject`
+[EmployeeApp_Server](https://github.com/Yolanda-landii/EmployeeApp_Server/tree/employeeSecurity)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The backend provides:
+- RESTful API endpoints for employee management
+- Secure authentication with JWT
+- Database operations for employee data
+- File upload handling for employee images
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Getting Started
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Prerequisites
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Node.js (v14 or higher)
+- npm or yarn
+- MongoDB (for backend)
 
-## Learn More
+### Installation
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Clone the frontend repository:
+   ```
+   git clone https://github.com/yourusername/Admin-Portal.git
+   cd Admin-Portal
+   ```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-### Code Splitting
+3. Clone the backend repository:
+   ```
+   git clone https://github.com/Yolanda-landii/EmployeeApp_Server.git
+   cd EmployeeApp_Server
+   git checkout employeeSecurity
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+4. Install backend dependencies:
+   ```
+   npm install
+   ```
 
-### Analyzing the Bundle Size
+5. Start the backend server:
+   ```
+   npm start
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+6. In a new terminal, start the frontend development server:
+   ```
+   npm start
+   ```
 
-### Making a Progressive Web App
+7. Open your browser and navigate to `http://localhost:3000`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Environment Variables
 
-### Advanced Configuration
+Create a `.env` file in the root directory with the following variables:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+REACT_APP_API_URL=http://localhost:5000/api
+```
 
-### Deployment
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```
+Admin-Portal/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── Pages/
+│   │   │   ├── Dashboard.js
+│   │   │   ├── Pages.css
+│   │   │   └── ...
+│   │   ├── employeeForm.js
+│   │   └── ...
+│   ├── App.js
+│   ├── index.js
+│   └── ...
+├── package.json
+└── README.md
+```
 
-### `npm run build` fails to minify
+## API Endpoints
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The application interacts with the following API endpoints:
+
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login user
+- `GET /api/employees` - Get all employees
+- `POST /api/employees` - Add a new employee
+- `PUT /api/employees/:id` - Update an employee
+- `DELETE /api/employees/:id` - Delete an employee
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [React Documentation](https://reactjs.org/)
+- [Node.js](https://nodejs.org/)
+- [Express.js](https://expressjs.com/)
+- [MongoDB](https://www.mongodb.com/)
