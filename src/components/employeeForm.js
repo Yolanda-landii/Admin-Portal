@@ -1,199 +1,301 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import './employeeForm.css';
 
-function AddEmployeeForm({ addEmployee, updateEmployee, formData, setFormData, isEditing }) {
-  const [preview, setPreview] = useState(formData.image ? formData.image : '');
+const AddEmployeeForm = ({ onSubmit, initialData, isEditing }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    surname: '',
+    email: '',
+    phone: '',
+    idNumber: '',
+    role: '',
+    department: '',
+    techStack: '',
+    githubUsername: '',
+    linkedinProfile: '',
+    image: ''
+  });
+
   const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const softwareRoles = [
-    'Developer',
-    'Designer',
-    'Manager',
-    'QA Engineer',
-    'DevOps Engineer',
-    'Product Owner',
-    'Scrum Master',
-    'Data Scientist',
-    'Frontend Developer',
-    'Backend Developer',
-    'Full Stack Developer',
-    'UI/UX Designer',
-    'System Administrator',
-    'Technical Lead',
-    'Architect'
-  ];
-
-  const validate = () => {
-    let errors = {};
-
-    // Name validation
-    if (!formData.name) errors.name = 'Name is required';
-    
-    // Surname validation
-    if (!formData.surname) errors.surname = 'Surname is required';
-    
-    // ID Number validation - must be exactly 13 digits
-    if (!formData.idNumber) {
-      errors.idNumber = 'ID Number is required';
-    } else if (!/^\d{13}$/.test(formData.idNumber)) {
-      errors.idNumber = 'ID Number must be exactly 13 digits';
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+      setImagePreview(initialData.image || '');
     }
+  }, [initialData]);
+
+  const validateForm = () => {
+    const newErrors = {};
     
+    // Required fields validation
+    const requiredFields = {
+      name: 'Name',
+      surname: 'Surname',
+      email: 'Email',
+      phone: 'Phone number',
+      idNumber: 'ID number',
+      role: 'Role',
+      department: 'Department',
+      techStack: 'Tech stack'
+    };
+
+    Object.entries(requiredFields).forEach(([field, label]) => {
+      if (!formData[field]) {
+        newErrors[field] = `${label} is required`;
+      }
+    });
+
+    // ID number validation (13 digits)
+    if (formData.idNumber && !/^\d{13}$/.test(formData.idNumber)) {
+      newErrors.idNumber = 'ID number must be exactly 13 digits';
+    }
+
     // Email validation
-    if (!formData.email) {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email format';
     }
-    
-    // Phone validation - must be exactly 10 digits
-    if (!formData.phone) {
-      errors.phone = 'Phone number is required';
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      errors.phone = 'Phone number must be exactly 10 digits';
-    }
-    
-    // Role validation
-    if (!formData.role) errors.role = 'Role is required';
 
-    return errors;
+    // Phone validation (10 digits)
+    if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number must be exactly 10 digits';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === 'image' && files[0]) {
-      setFormData(prevState => ({ ...prevState, image: files[0] }));
-      setPreview(URL.createObjectURL(files[0])); 
-    } else {
-      setFormData(prevState => ({ ...prevState, [name]: value }));
-    }
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    if (!validateForm()) {
       return;
     }
-    
-    if (isEditing) {
-      updateEmployee();
-    } else {
-      addEmployee();
-    }
 
-    setFormData({});
-    setPreview('');
-    setErrors({});
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+      setSubmitSuccess(true);
+      
+      if (!isEditing) {
+        // Reset form only if not in editing mode
+        setFormData({
+          name: '',
+          surname: '',
+          email: '',
+          phone: '',
+          idNumber: '',
+          role: '',
+          department: '',
+          techStack: '',
+          githubUsername: '',
+          linkedinProfile: '',
+          image: ''
+        });
+        setImagePreview('');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitError(error.message || 'An error occurred while submitting the form');
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setFormData(prev => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
-    <form className="add-employee-form" onSubmit={handleSubmit}>
-      <div className="form-group">
-        <input 
-          type="text" 
-          name="name" 
-          placeholder="Name" 
-          value={formData.name || ''} 
-          onChange={handleChange} 
-          className={errors.name ? 'input error' : ''}
-        />
-        {errors.name && <span className="field-error">{errors.name}</span>}
+    <form onSubmit={handleSubmit} className="employee-form">
+      {submitError && (
+        <div className="error-message">
+          {submitError}
+        </div>
+      )}
+      {submitSuccess && (
+        <div className="success-message">
+          {isEditing ? 'Employee updated successfully!' : 'Employee added successfully!'}
+        </div>
+      )}
+      
+      <div className="form-grid">
+        <div className="form-group">
+          <label htmlFor="name">Name *</label>
+          <input
+            type="text"
+            id="name"
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            className={errors.name ? 'error' : ''}
+            placeholder="Enter name"
+          />
+          {errors.name && <span className="error-text">{errors.name}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="surname">Surname *</label>
+          <input
+            type="text"
+            id="surname"
+            value={formData.surname}
+            onChange={(e) => setFormData(prev => ({ ...prev, surname: e.target.value }))}
+            className={errors.surname ? 'error' : ''}
+            placeholder="Enter surname"
+          />
+          {errors.surname && <span className="error-text">{errors.surname}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            value={formData.email}
+            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+            className={errors.email ? 'error' : ''}
+            placeholder="Enter email"
+          />
+          {errors.email && <span className="error-text">{errors.email}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="phone">Phone Number *</label>
+          <input
+            type="tel"
+            id="phone"
+            value={formData.phone}
+            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+            className={errors.phone ? 'error' : ''}
+            placeholder="Enter phone number"
+          />
+          {errors.phone && <span className="error-text">{errors.phone}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="idNumber">ID Number *</label>
+          <input
+            type="text"
+            id="idNumber"
+            value={formData.idNumber}
+            onChange={(e) => setFormData(prev => ({ ...prev, idNumber: e.target.value }))}
+            className={errors.idNumber ? 'error' : ''}
+            placeholder="Enter ID number"
+          />
+          {errors.idNumber && <span className="error-text">{errors.idNumber}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="role">Role *</label>
+          <select
+            id="role"
+            value={formData.role}
+            onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+            className={`role-select ${errors.role ? 'error' : ''}`}
+          >
+            <option value="">Select a role</option>
+            <option value="Web Dev">Web Developer</option>
+            <option value="Mobile Dev">Mobile Developer</option>
+            <option value="UI/UX Designer">UI/UX Designer</option>
+            <option value="Project Manager">Project Manager</option>
+            <option value="Admin">Admin</option>
+          </select>
+          {errors.role && <span className="error-text">{errors.role}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="department">Department *</label>
+          <input
+            type="text"
+            id="department"
+            value={formData.department}
+            onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
+            className={errors.department ? 'error' : ''}
+            placeholder="Enter department"
+          />
+          {errors.department && <span className="error-text">{errors.department}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="techStack">Tech Stack *</label>
+          <input
+            type="text"
+            id="techStack"
+            value={formData.techStack}
+            onChange={(e) => setFormData(prev => ({ ...prev, techStack: e.target.value }))}
+            className={errors.techStack ? 'error' : ''}
+            placeholder="Enter tech stack"
+          />
+          {errors.techStack && <span className="error-text">{errors.techStack}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="githubUsername">GitHub Username</label>
+          <input
+            type="text"
+            id="githubUsername"
+            value={formData.githubUsername}
+            onChange={(e) => setFormData(prev => ({ ...prev, githubUsername: e.target.value }))}
+            placeholder="Enter GitHub username"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="linkedinProfile">LinkedIn Profile</label>
+          <input
+            type="url"
+            id="linkedinProfile"
+            value={formData.linkedinProfile}
+            onChange={(e) => setFormData(prev => ({ ...prev, linkedinProfile: e.target.value }))}
+            placeholder="Enter LinkedIn profile URL"
+          />
+        </div>
+
+        <div className="form-group full-width">
+          <label htmlFor="image">Profile Image</label>
+          <input
+            type="file"
+            id="image"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="file-input"
+          />
+          {imagePreview && (
+            <div className="image-preview">
+              <img src={imagePreview} alt="Profile preview" />
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="form-group">
-        <input 
-          type="text" 
-          name="surname" 
-          placeholder="Surname" 
-          value={formData.surname || ''} 
-          onChange={handleChange} 
-          className={errors.surname ? 'input error' : ''}
-        />
-        {errors.surname && <span className="field-error">{errors.surname}</span>}
-      </div>
-
-      <div className="form-group">
-        <input 
-          type="text" 
-          name="idNumber" 
-          placeholder="ID Number (13 digits)" 
-          value={formData.idNumber || ''} 
-          onChange={handleChange} 
-          className={errors.idNumber ? 'input error' : ''}
-        />
-        {errors.idNumber && <span className="field-error">{errors.idNumber}</span>}
-      </div>
-
-      <div className="form-group">
-        <select 
-          name="role" 
-          value={formData.role || ''} 
-          onChange={handleChange}
-          className={`role-select ${errors.role ? 'input error' : ''}`}
+      <div className="form-actions">
+        <button 
+          type="submit" 
+          className="submit-button"
+          disabled={isSubmitting}
         >
-          <option value="">Select Role</option>
-          {softwareRoles.map(role => (
-            <option key={role} value={role}>{role}</option>
-          ))}
-        </select>
-        {errors.role && <span className="field-error">{errors.role}</span>}
+          {isSubmitting ? 'Submitting...' : (isEditing ? 'Update' : 'Add')}
+        </button>
       </div>
-
-      <div className="form-group">
-        <input 
-          type="number" 
-          name="age" 
-          placeholder="Age" 
-          value={formData.age || ''} 
-          onChange={handleChange}  
-        />
-      </div>
-
-      <div className="form-group">
-        <input 
-          type="email" 
-          name="email" 
-          placeholder="Email" 
-          value={formData.email || ''} 
-          onChange={handleChange} 
-          className={errors.email ? 'input error' : ''}
-        />
-        {errors.email && <span className="field-error">{errors.email}</span>}
-      </div>
-
-      <div className="form-group">
-        <input 
-          type="tel" 
-          name="phone" 
-          placeholder="Phone (10 digits)" 
-          value={formData.phone || ''} 
-          onChange={handleChange} 
-          className={errors.phone ? 'input error' : ''}
-        />
-        {errors.phone && <span className="field-error">{errors.phone}</span>}
-      </div>
-
-      <div className="form-group">
-        <input 
-          type="file" 
-          name="image" 
-          accept="image/*" 
-          onChange={handleChange} 
-        />
-        {preview && <img src={preview} alt="Preview" className="image-preview" />}
-      </div>
-
-      <button type="submit" className="submit-button">
-        {isEditing ? 'Update Employee' : 'Add Employee'}
-      </button>
     </form>
   );
-}
+};
 
 export default AddEmployeeForm;

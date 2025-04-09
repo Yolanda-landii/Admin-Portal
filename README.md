@@ -1,15 +1,10 @@
 # Employee Management Admin Portal
 
-A modern, responsive admin portal for managing employee information with a comprehensive dashboard, employee management, and authentication features.
+A modern, responsive admin portal for managing employee information with a comprehensive dashboard and employee management features.
 
 ![Admin Portal Screenshot](screenshot.png)
 
 ## Features
-
-- **Authentication System**
-  - Secure login and registration
-  - JWT-based authentication
-  - Protected routes
 
 - **Dashboard**
   - Employee statistics and metrics
@@ -38,7 +33,6 @@ A modern, responsive admin portal for managing employee information with a compr
   - Node.js
   - Express.js
   - MongoDB
-  - JWT Authentication
 
 ## Backend Repository
 
@@ -48,7 +42,6 @@ This project is connected to the following backend repository:
 
 The backend provides:
 - RESTful API endpoints for employee management
-- Secure authentication with JWT
 - Database operations for employee data
 - File upload handling for employee images
 
@@ -114,6 +107,7 @@ Admin-Portal/
 │   ├── components/
 │   │   ├── Pages/
 │   │   │   ├── Dashboard.js
+│   │   │   ├── LandingPage.js
 │   │   │   ├── Pages.css
 │   │   │   └── ...
 │   │   ├── employeeForm.js
@@ -129,8 +123,6 @@ Admin-Portal/
 
 The application interacts with the following API endpoints:
 
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
 - `GET /api/employees` - Get all employees
 - `POST /api/employees` - Add a new employee
 - `PUT /api/employees/:id` - Update an employee

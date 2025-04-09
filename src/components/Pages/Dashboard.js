@@ -1,297 +1,189 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Sidebar from '../sideBar';
-import EmployeeList from '../addEmployeeList';
-import AddEmployeeForm from '../employeeForm';
-import Loader from '../Loader';
-import Alert from '../Alert';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import './Pages.css';
+import AddEmployeeForm from '../employeeForm';
+import axios from 'axios';
 
 function Dashboard() {
   const [employees, setEmployees] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
-  const [editEmployeeEmail, setEditEmployeeEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
-  const navigate = useNavigate();
-
-  const fetchCsrfToken = async () => {
-    const response = await fetch('http://localhost:3001/api/csrf-token', {
-      method: 'GET',
-      credentials: 'include',
-    });
-    const data = await response.json();
-    return data.csrfToken;
-  };
-
-  const checkSessionValidity = useCallback(async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/session-check', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Session is not valid');
-      }
-
-      const data = await response.json();
-      return data.isValid;
-    } catch (error) {
-      setAlert({ message: 'Session expired. Please log in again.', type: 'error' });
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-    }
-  }, [navigate]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      checkSessionValidity();
-    }, 120000);
-
-    return () => clearInterval(intervalId);
-  }, [checkSessionValidity]);
-
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      setLoading(true);
-      try {
-        const csrfToken = await fetchCsrfToken();
-        const response = await fetch('http://localhost:3001/api/employees', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'X-CSRF-Token': csrfToken,
-          },
-        });
-
-        const data = await response.json();
-        setEmployees(data);
-      } catch (error) {
-        setAlert({ message: 'Error fetching employees', type: 'error' });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEmployees();
   }, []);
 
-  const addEmployee = async () => {
-    setLoading(true);
+  const fetchEmployees = async () => {
     try {
-      let photoUrl = '';
+      setLoading(true);
+      const response = await axios.get('http://localhost:3001/api/employees');
+      console.log('Fetched employees:', response.data);
+      setEmployees(response.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching employees:', err);
+      setError('Failed to load employees. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      const csrfToken = await fetchCsrfToken();
-
-      if (formData.image) {
-        const formDataForUpload = new FormData();
-        formDataForUpload.append('file', formData.image);
-
-        const photoUploadResponse = await fetch('http://localhost:3001/upload-photo', {
-          method: 'POST',
-          body: formDataForUpload,
-          credentials: 'include',
-          headers: {
-            'X-CSRF-Token': csrfToken,
-          },
-        });
-
-        if (!photoUploadResponse.ok) {
-          throw new Error('Failed to upload photo.');
+  const uploadImage = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await axios.post('http://localhost:3001/upload-photo', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-
-        const uploadResult = await photoUploadResponse.json();
-        photoUrl = uploadResult.url;
-      }
-
-      const employeeData = { ...formData, image: photoUrl };
-
-      const response = await fetch('http://localhost:3001/api/employees', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken,
-        },
-        body: JSON.stringify(employeeData),
-        credentials: 'include',
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error adding employee: ${errorText}`);
-      }
-
-      const newEmployee = await response.json();
-      const updatedEmployees = [...employees, newEmployee];
-      setEmployees(updatedEmployees);
-      setAlert({ message: 'Employee added successfully', type: 'success' });
-
-      setFormData({});
-      setShowAddForm(false);
-      setActiveView('employee-list');
-    } catch (error) {
-      setAlert({ message: error.message, type: 'error' });
-    } finally {
-      setLoading(false);
+      
+      return response.data.url;
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      throw new Error('Failed to upload image');
     }
   };
 
-  const updateEmployee = async () => {
-    setLoading(true);
+  const addEmployee = async (formData) => {
     try {
-      let photoUrl = formData.image;
-
-      const csrfToken = await fetchCsrfToken();
-
-      if (typeof formData.image === 'object') {
-        const formDataForUpload = new FormData();
-        formDataForUpload.append('file', formData.image);
-
-        const photoUploadResponse = await fetch('http://localhost:3001/upload-photo', {
-          method: 'POST',
-          body: formDataForUpload,
-          credentials: 'include',
-          headers: {
-            'X-CSRF-Token': csrfToken,
-          },
-        });
-
-        if (!photoUploadResponse.ok) {
-          throw new Error('Failed to upload photo.');
-        }
-
-        const uploadResult = await photoUploadResponse.json();
-        photoUrl = uploadResult.url;
+      console.log('Adding employee with data:', formData);
+      let imageUrl = formData.image;
+      
+      // Upload image if provided
+      if (formData.image instanceof File) {
+        imageUrl = await uploadImage(formData.image);
       }
-
-      const employeeData = { ...formData, image: photoUrl };
-
-      const response = await fetch(`http://localhost:3001/api/employees/${editEmployeeEmail}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken,
-        },
-        body: JSON.stringify(employeeData),
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error updating employee: ${errorText}`);
+      
+      // Prepare employee data
+      const employeeData = {
+        name: formData.name,
+        surname: formData.surname,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        idNumber: formData.idNumber,
+        department: formData.department,
+        techStack: formData.techStack,
+        githubUsername: formData.githubUsername || '',
+        linkedinProfile: formData.linkedinProfile || '',
+        image: imageUrl
+      };
+      
+      console.log('Sending add request with data:', employeeData);
+      const response = await axios.post('http://localhost:3001/api/employees', employeeData);
+      
+      if (response.data) {
+        fetchEmployees();
+        setFormData({});
+        setActiveView('dashboard');
+      } else {
+        throw new Error('Failed to add employee');
       }
-
-      const updatedEmployees = employees.map(employee =>
-        employee.email === editEmployeeEmail ? employeeData : employee
-      );
-      setEmployees(updatedEmployees);
-      setAlert({ message: 'Employee updated successfully', type: 'success' });
-
-    } catch (error) {
-      setAlert({ message: error.message, type: 'error' });
-    } finally {
-      setLoading(false);
-      setShowAddForm(false);
-      setIsEditing(false);
-      setFormData({});
-      setActiveView('employee-list');
+    } catch (err) {
+      console.error('Error adding employee:', err);
+      throw err;
     }
   };
 
-  const removeEmployee = async (email) => {
-    if (!window.confirm('Are you sure you want to delete this employee?')) {
-      return;
-    }
-    
-    setLoading(true);
+  const updateEmployee = async (formData) => {
     try {
-      const csrfToken = await fetchCsrfToken();
-
-      const response = await fetch(`http://localhost:3001/api/employees/${email}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': csrfToken,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error deleting employee: ${errorText}`);
+      console.log('Updating employee with data:', formData);
+      let imageUrl = formData.image;
+      
+      // Upload new image if provided
+      if (formData.image instanceof File) {
+        imageUrl = await uploadImage(formData.image);
       }
-
-      const updatedEmployees = employees.filter(employee => employee.email !== email);
-      setEmployees(updatedEmployees);
-      setAlert({ message: 'Employee removed successfully', type: 'success' });
-
-    } catch (error) {
-      setAlert({ message: `Error deleting employee: ${error.message}`, type: 'error' });
-    } finally {
-      setLoading(false);
+      
+      // Prepare employee data
+      const employeeData = {
+        name: formData.name,
+        surname: formData.surname,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        department: formData.department,
+        techStack: formData.techStack,
+        githubUsername: formData.githubUsername || '',
+        linkedinProfile: formData.linkedinProfile || '',
+        image: imageUrl
+      };
+      
+      console.log('Sending update request with data:', employeeData);
+      const response = await axios.put(`http://localhost:3001/api/employees/${formData.idNumber}`, employeeData);
+      
+      if (response.data) {
+        fetchEmployees();
+        setFormData({});
+        setIsEditing(false);
+        setActiveView('dashboard');
+      } else {
+        throw new Error('Failed to update employee');
+      }
+    } catch (err) {
+      console.error('Error updating employee:', err);
+      throw err;
     }
   };
 
-  const handleEditEmployee = (employee) => {
-    setFormData(employee);
-    setShowAddForm(true);
+  const deleteEmployee = async (idNumber) => {
+    try {
+      console.log('Deleting employee with ID:', idNumber);
+      const response = await axios.delete(`http://localhost:3001/api/employees/${idNumber}`);
+      
+      if (response.status === 200) {
+        fetchEmployees();
+        setActiveView('dashboard');
+      } else {
+        throw new Error('Failed to delete employee');
+      }
+    } catch (err) {
+      console.error('Error deleting employee:', err);
+      throw err;
+    }
+  };
+
+  const editEmployee = (employee) => {
+    console.log('Editing employee:', employee);
+    setFormData({
+      name: employee.name,
+      surname: employee.surname,
+      email: employee.email,
+      phone: employee.phone,
+      idNumber: employee.idNumber,
+      role: employee.role,
+      department: employee.department || '',
+      techStack: employee.techStack || '',
+      githubUsername: employee.githubUsername || '',
+      linkedinProfile: employee.linkedinProfile || '',
+      image: employee.image || ''
+    });
     setIsEditing(true);
-    setEditEmployeeEmail(employee.email);
-    setActiveView('add-employee');
-  };
-
-  const handleLogout = async () => {
-    try {
-      const csrfToken = await fetchCsrfToken();
-      const response = await fetch('http://localhost:3001/api/logout', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-Token': csrfToken,
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        console.error(`Logout failed: ${response.status} ${response.statusText}`);
-        console.error(`Error message from server: ${errorMessage}`);
-        throw new Error('Logout failed');
-      }
-
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
-  const handleViewChange = (view) => {
-    setActiveView(view);
-    if (view === 'add-employee') {
-      setShowAddForm(true);
-    } else {
-      setShowAddForm(false);
-    }
+    setActiveView('edit');
   };
 
   const getEmployeeStats = () => {
     const totalEmployees = employees.length;
-    const roles = {};
+    const roleCounts = {};
     
     employees.forEach(employee => {
       const role = employee.role || 'Unassigned';
-      roles[role] = (roles[role] || 0) + 1;
+      if (roleCounts[role]) {
+        roleCounts[role]++;
+      } else {
+        roleCounts[role] = 1;
+      }
     });
     
     return {
       total: totalEmployees,
-      roles: roles
+      roles: roleCounts
     };
   };
 
@@ -308,92 +200,74 @@ function Dashboard() {
   });
 
   const stats = getEmployeeStats();
-  const uniqueRoles = [...new Set(employees.map(emp => emp.role || 'Unassigned'))];
+  const roles = Object.keys(stats.roles);
+
+  if (loading) {
+    return (
+      <div className="loader">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
-      <Sidebar 
-        setShowAddForm={setShowAddForm} 
-        handleLogout={handleLogout} 
-      />
+      <div className="sidebar">
+        <h2>Admin Portal</h2>
+        <ul>
+          <li>
+            <a href="#" onClick={() => setActiveView('dashboard')}>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={() => setActiveView('employees')}>
+              Employees
+            </a>
+          </li>
+          <li>
+            <a href="#" onClick={() => {
+              setFormData({});
+              setIsEditing(false);
+              setActiveView('add');
+            }}>
+              Add Employee
+            </a>
+          </li>
+        </ul>
+      </div>
+
       <div className="main-content">
-        {loading && <Loader />}
-        {alert && <Alert message={alert.message} type={alert.type} />}
-        
-        <div className="dashboard-header">
-          <h1>Employee Management</h1>
-          <div className="dashboard-actions">
-            <button 
-              className={`action-button ${activeView === 'dashboard' ? 'active' : ''}`}
-              onClick={() => handleViewChange('dashboard')}
-            >
-              <i className="fas fa-tachometer-alt"></i> Dashboard
-            </button>
-            <button 
-              className={`action-button ${activeView === 'employee-list' ? 'active' : ''}`}
-              onClick={() => handleViewChange('employee-list')}
-            >
-              <i className="fas fa-users"></i> Employee List
-            </button>
-            <button 
-              className={`action-button ${activeView === 'add-employee' ? 'active' : ''}`}
-              onClick={() => handleViewChange('add-employee')}
-            >
-              <i className="fas fa-user-plus"></i> Add Employee
-            </button>
+        {error && (
+          <div className="alert alert-error">
+            {error}
           </div>
-        </div>
-        
-        {showAddForm ? (
-          <div className="dashboard-section">
-            <h2>{isEditing ? 'Edit Employee' : 'Add New Employee'}</h2>
-            <AddEmployeeForm
-              addEmployee={addEmployee}
-              updateEmployee={updateEmployee}
-              formData={formData}
-              setFormData={setFormData}
-              isEditing={isEditing}
-            />
-          </div>
-        ) : activeView === 'employee-list' ? (
-          <div className="dashboard-section">
-            <div className="employee-list-header">
-              <h2>Employee List</h2>
-              <div className="employee-filters">
-                <div className="search-container">
-                  <i className="fas fa-search"></i>
-                  <input
-                    type="text"
-                    placeholder="Search employees..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                  />
-                </div>
-                <div className="filter-container">
-                  <select 
-                    value={filterRole} 
-                    onChange={(e) => setFilterRole(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">All Roles</option>
-                    {uniqueRoles.map(role => (
-                      <option key={role} value={role}>{role}</option>
-                    ))}
-                  </select>
-                </div>
+        )}
+
+        {activeView === 'dashboard' && (
+          <>
+            <div className="dashboard-header">
+              <h1>Dashboard</h1>
+              <div className="dashboard-actions">
+                <button 
+                  className="action-button" 
+                  onClick={() => setActiveView('employees')}
+                >
+                  <i className="fas fa-users"></i> View Employees
+                </button>
+                <button 
+                  className="action-button" 
+                  onClick={() => {
+                    setFormData({});
+                    setIsEditing(false);
+                    setActiveView('add');
+                  }}
+                >
+                  <i className="fas fa-plus"></i> Add Employee
+                </button>
               </div>
             </div>
-            <EmployeeList
-              employees={filteredEmployees}
-              removeEmployee={removeEmployee}
-              handleEditEmployee={handleEditEmployee}
-            />
-          </div>
-        ) : (
-          <div className="dashboard-section">
-            <h2>Dashboard Overview</h2>
-            
+
             <div className="stats-cards">
               <div className="stat-card">
                 <div className="stat-icon">
@@ -404,57 +278,36 @@ function Dashboard() {
                   <p className="stat-value">{stats.total}</p>
                 </div>
               </div>
-              
               <div className="stat-card">
                 <div className="stat-icon">
                   <i className="fas fa-user-tie"></i>
                 </div>
                 <div className="stat-info">
-                  <h3>Managers</h3>
-                  <p className="stat-value">{stats.roles['Manager'] || 0}</p>
-                </div>
-              </div>
-              
-              <div className="stat-card">
-                <div className="stat-icon">
-                  <i className="fas fa-code"></i>
-                </div>
-                <div className="stat-info">
-                  <h3>Developers</h3>
-                  <p className="stat-value">{stats.roles['Developer'] || 0}</p>
-                </div>
-              </div>
-              
-              <div className="stat-card">
-                <div className="stat-icon">
-                  <i className="fas fa-paint-brush"></i>
-                </div>
-                <div className="stat-info">
-                  <h3>Designers</h3>
-                  <p className="stat-value">{stats.roles['Designer'] || 0}</p>
+                  <h3>Roles</h3>
+                  <p className="stat-value">{roles.length}</p>
                 </div>
               </div>
             </div>
-            
+
             <div className="dashboard-grid">
               <div className="dashboard-card">
-                <h3>Employee Roles</h3>
+                <h3>Role Distribution</h3>
                 <div className="role-distribution">
-                  {Object.entries(stats.roles).map(([role, count]) => (
+                  {roles.map(role => (
                     <div key={role} className="role-item">
-                      <div className="role-name">{role}</div>
+                      <span className="role-name">{role}</span>
                       <div className="role-bar-container">
                         <div 
                           className="role-bar" 
-                          style={{ width: `${(count / stats.total) * 100}%` }}
+                          style={{ width: `${(stats.roles[role] / stats.total) * 100}%` }}
                         ></div>
                       </div>
-                      <div className="role-count">{count}</div>
+                      <span className="role-count">{stats.roles[role]}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               <div className="dashboard-card">
                 <h3>Recent Employees</h3>
                 <div className="recent-employees">
@@ -476,22 +329,133 @@ function Dashboard() {
                 </div>
               </div>
             </div>
-            
-            <div className="dashboard-actions-bottom">
+          </>
+        )}
+
+        {activeView === 'employees' && (
+          <>
+            <div className="dashboard-header">
+              <h1>Employees</h1>
+              <div className="dashboard-actions">
+                <button 
+                  className="action-button" 
+                  onClick={() => setActiveView('dashboard')}
+                >
+                  <i className="fas fa-chart-line"></i> Dashboard
+                </button>
+                <button 
+                  className="action-button" 
+                  onClick={() => {
+                    setFormData({});
+                    setIsEditing(false);
+                    setActiveView('add');
+                  }}
+                >
+                  <i className="fas fa-plus"></i> Add Employee
+                </button>
+              </div>
+            </div>
+
+            <div className="employee-list-header">
+              <div className="employee-filters">
+                <div className="search-container">
+                  <i className="fas fa-search"></i>
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search employees..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <select 
+                  className="filter-select"
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                >
+                  <option value="all">All Roles</option>
+                  {roles.map(role => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="employee-cards">
+              {filteredEmployees.map(employee => (
+                <div key={employee.email} className="employee-card">
+                  {employee.image ? (
+                    <img src={employee.image} alt={`${employee.name} ${employee.surname}`} />
+                  ) : (
+                    <div className="employee-avatar">
+                      <i className="fas fa-user"></i>
+                    </div>
+                  )}
+                  <h3>{employee.name} {employee.surname}</h3>
+                  <p className="employee-role">{employee.role || 'Unassigned'}</p>
+                  <p className="employee-department">{employee.department || 'No Department'}</p>
+                  <p className="employee-tech">{employee.techStack || 'No Tech Stack'}</p>
+                  <p className="employee-email">{employee.email}</p>
+                  <div className="employee-actions">
+                    <button 
+                      className="delete-button"
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to delete this employee?')) {
+                          deleteEmployee(employee.idNumber);
+                        }
+                      }}
+                    >
+                      Delete
+                    </button>
+                    <button 
+                      className="edit-button"
+                      onClick={() => editEmployee(employee)}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {activeView === 'add' && (
+          <>
+            <div className="dashboard-header">
+              <h1>Add Employee</h1>
               <button 
-                className="primary-button"
-                onClick={() => handleViewChange('employee-list')}
+                className="action-button" 
+                onClick={() => setActiveView('dashboard')}
               >
-                <i className="fas fa-list"></i> View All Employees
-              </button>
-              <button 
-                className="secondary-button"
-                onClick={() => handleViewChange('add-employee')}
-              >
-                <i className="fas fa-user-plus"></i> Add New Employee
+                <i className="fas fa-arrow-left"></i> Back to Dashboard
               </button>
             </div>
-          </div>
+            <AddEmployeeForm 
+              onSubmit={addEmployee}
+              initialData={formData}
+              isEditing={isEditing}
+            />
+          </>
+        )}
+
+        {activeView === 'edit' && (
+          <>
+            <div className="dashboard-header">
+              <h1>Edit Employee</h1>
+              <button 
+                className="action-button" 
+                onClick={() => setActiveView('dashboard')}
+              >
+                <i className="fas fa-arrow-left"></i> Back to Dashboard
+              </button>
+            </div>
+            <AddEmployeeForm 
+              onSubmit={updateEmployee}
+              initialData={formData}
+              isEditing={isEditing}
+            />
+          </>
         )}
       </div>
     </div>

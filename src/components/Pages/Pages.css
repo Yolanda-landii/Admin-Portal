@@ -496,42 +496,107 @@ body {
 }
 
 .employee-card {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.employee-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .employee-card img {
-    border-radius: 50%;
-    margin-bottom: 15px;
     width: 100px;
     height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+}
+
+.employee-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #e3f2fd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.employee-avatar i {
+    font-size: 2.5rem;
+    color: #3498db;
 }
 
 .employee-card h3 {
-    font-size: 18px;
-    margin-bottom: 5px;
+    margin: 0 0 0.5rem;
+    color: #2c3e50;
+    font-size: 1.2rem;
 }
 
-.employee-card p {
-    font-size: 14px;
-    color: #4b5563;
+.employee-role {
+    font-weight: 500;
+    color: #3498db;
+    margin: 0 0 0.25rem;
+}
+
+.employee-department {
+    color: #7f8c8d;
+    margin: 0 0 0.25rem;
+    font-size: 0.9rem;
+}
+
+.employee-tech {
+    color: #7f8c8d;
+    margin: 0 0 0.25rem;
+    font-size: 0.9rem;
+}
+
+.employee-email {
+    color: #7f8c8d;
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+}
+
+.employee-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.edit-button, .delete-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.edit-button {
+    background-color: #3498db;
+    color: white;
+}
+
+.edit-button:hover {
+    background-color: #2980b9;
 }
 
 .delete-button {
-    background-color: #ef4444;
+    background-color: #e74c3c;
     color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
 }
 
 .delete-button:hover {
-    background-color: #dc2626;
+    background-color: #c0392b;
 }
 
 .alert {
@@ -997,4 +1062,124 @@ button:hover {
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
     outline: none;
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.employee-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.form-group input.input-error,
+.form-group select.input-error {
+    border-color: #dc3545;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.image-preview {
+    margin-top: 1rem;
+    max-width: 200px;
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.submit-button {
+    grid-column: 1 / -1;
+    padding: 1rem;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #357abd;
+}
+
+.submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Role select specific styles */
+.role-select {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #333;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.role-select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .employee-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
 }
