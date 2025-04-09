@@ -72,7 +72,8 @@ function Dashboard() {
         techStack: formData.techStack,
         githubUsername: formData.githubUsername || '',
         linkedinProfile: formData.linkedinProfile || '',
-        image: imageUrl
+        image: imageUrl,
+        age: parseInt(formData.age)
       };
       
       console.log('Sending add request with data:', employeeData);
@@ -108,14 +109,23 @@ function Dashboard() {
         email: formData.email,
         phone: formData.phone,
         role: formData.role,
+        idNumber: formData.idNumber,
         department: formData.department,
         techStack: formData.techStack,
         githubUsername: formData.githubUsername || '',
         linkedinProfile: formData.linkedinProfile || '',
-        image: imageUrl
+        image: imageUrl,
+        age: parseInt(formData.age)
       };
       
+      // Make sure we have the ID number
+      if (!formData.idNumber) {
+        throw new Error('ID number is missing. Cannot update employee.');
+      }
+      
       console.log('Sending update request with data:', employeeData);
+      console.log('Updating employee with ID:', formData.idNumber);
+      
       const response = await axios.put(`http://localhost:3001/api/employees/${formData.idNumber}`, employeeData);
       
       if (response.data) {
@@ -128,11 +138,22 @@ function Dashboard() {
       }
     } catch (err) {
       console.error('Error updating employee:', err);
+      // Show a more specific error message
+      if (err.response && err.response.status === 404) {
+        setError(`Employee with ID ${formData.idNumber} not found. Please check the ID number.`);
+      } else {
+        setError(`Failed to update employee: ${err.message}`);
+      }
       throw err;
     }
   };
 
   const deleteEmployee = async (idNumber) => {
+    if (!idNumber) {
+      console.error('Cannot delete employee: ID number is missing');
+      return;
+    }
+
     try {
       console.log('Deleting employee with ID:', idNumber);
       const response = await axios.delete(`http://localhost:3001/api/employees/${idNumber}`);
@@ -145,7 +166,11 @@ function Dashboard() {
       }
     } catch (err) {
       console.error('Error deleting employee:', err);
-      throw err;
+      if (err.response && err.response.status === 404) {
+        setError(`Employee with ID ${idNumber} not found. Please check the ID number.`);
+      } else {
+        setError(`Failed to delete employee: ${err.message}`);
+      }
     }
   };
 
@@ -162,7 +187,8 @@ function Dashboard() {
       techStack: employee.techStack || '',
       githubUsername: employee.githubUsername || '',
       linkedinProfile: employee.linkedinProfile || '',
-      image: employee.image || ''
+      image: employee.image || '',
+      age: employee.age || ''
     });
     setIsEditing(true);
     setActiveView('edit');
@@ -206,6 +232,7 @@ function Dashboard() {
     return (
       <div className="loader">
         <div className="spinner"></div>
+        <p>Loading data...</p>
       </div>
     );
   }
@@ -312,7 +339,7 @@ function Dashboard() {
                 <h3>Recent Employees</h3>
                 <div className="recent-employees">
                   {employees.slice(0, 5).map(employee => (
-                    <div key={employee.email} className="recent-employee">
+                    <div key={employee.idNumber} className="recent-employee">
                       <div className="recent-employee-avatar">
                         {employee.image ? (
                           <img src={employee.image} alt={`${employee.name} ${employee.surname}`} />
@@ -383,7 +410,7 @@ function Dashboard() {
 
             <div className="employee-cards">
               {filteredEmployees.map(employee => (
-                <div key={employee.email} className="employee-card">
+                <div key={employee.idNumber} className="employee-card">
                   {employee.image ? (
                     <img src={employee.image} alt={`${employee.name} ${employee.surname}`} />
                   ) : (
@@ -396,6 +423,8 @@ function Dashboard() {
                   <p className="employee-department">{employee.department || 'No Department'}</p>
                   <p className="employee-tech">{employee.techStack || 'No Tech Stack'}</p>
                   <p className="employee-email">{employee.email}</p>
+                  <p className="employee-id">ID: {employee.idNumber}</p>
+                  <p className="employee-age">Age: {employee.age || 'N/A'}</p>
                   <div className="employee-actions">
                     <button 
                       className="delete-button"

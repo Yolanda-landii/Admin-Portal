@@ -13,7 +13,8 @@ const AddEmployeeForm = ({ onSubmit, initialData, isEditing }) => {
     techStack: '',
     githubUsername: '',
     linkedinProfile: '',
-    image: ''
+    image: '',
+    age: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -41,7 +42,8 @@ const AddEmployeeForm = ({ onSubmit, initialData, isEditing }) => {
       idNumber: 'ID number',
       role: 'Role',
       department: 'Department',
-      techStack: 'Tech stack'
+      techStack: 'Tech stack',
+      age: 'Age'
     };
 
     Object.entries(requiredFields).forEach(([field, label]) => {
@@ -63,6 +65,11 @@ const AddEmployeeForm = ({ onSubmit, initialData, isEditing }) => {
     // Phone validation (10 digits)
     if (formData.phone && !/^\d{10}$/.test(formData.phone)) {
       newErrors.phone = 'Phone number must be exactly 10 digits';
+    }
+
+    // Age validation (must be a number between 18 and 100)
+    if (formData.age && (isNaN(formData.age) || formData.age < 18 || formData.age > 100)) {
+      newErrors.age = 'Age must be a number between 18 and 100';
     }
 
     setErrors(newErrors);
@@ -96,7 +103,8 @@ const AddEmployeeForm = ({ onSubmit, initialData, isEditing }) => {
           techStack: '',
           githubUsername: '',
           linkedinProfile: '',
-          image: ''
+          image: '',
+          age: ''
         });
         setImagePreview('');
       }
@@ -200,6 +208,21 @@ const AddEmployeeForm = ({ onSubmit, initialData, isEditing }) => {
             placeholder="Enter ID number"
           />
           {errors.idNumber && <span className="error-text">{errors.idNumber}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="age">Age *</label>
+          <input
+            type="number"
+            id="age"
+            value={formData.age}
+            onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
+            className={errors.age ? 'error' : ''}
+            placeholder="Enter age"
+            min="18"
+            max="100"
+          />
+          {errors.age && <span className="error-text">{errors.age}</span>}
         </div>
 
         <div className="form-group">

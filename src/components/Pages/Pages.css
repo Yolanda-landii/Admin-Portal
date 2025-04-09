@@ -1183,3 +1183,19 @@ button:hover {
         padding: 1rem;
     }
 }
+
+.employee-id,
+.employee-age {
+  margin: 5px 0;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.employee-id {
+  color: #444;
+  font-weight: 500;
+}
+
+.employee-age {
+  color: #666;
+}
