@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app'; 
 import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth'; 
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate, Link } from 'react-router-dom'; 
 import './Pages.css';
 
 const firebaseConfig = {
@@ -21,26 +21,33 @@ const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); 
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
     if (!email || !password) {
       setError('Please enter both email and password.');
+      setIsLoading(false);
       return;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
       setError('Please enter a valid email.');
+      setIsLoading(false);
       return;
     }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters.');
+      setIsLoading(false);
       return;
     }
   
     try {
-      
       const csrfResponse = await fetch('http://localhost:3001/api/csrf-token', {
         method: 'GET',
         credentials: 'include', 
@@ -61,7 +68,6 @@ const AdminLogin = () => {
       });
   
       if (response.ok) {
-        console.log('Logged in successfully');
         navigate('/dashboard'); 
       } else {
         const errorData = await response.json(); 
@@ -69,6 +75,8 @@ const AdminLogin = () => {
       }
     } catch (error) {
       setError(error.message); 
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,7 +95,7 @@ const AdminLogin = () => {
   
     const resetTimer = () => {
       clearTimeout(logoutTimer);
-      logoutTimer = setTimeout(handleLogout, 120000);
+      logoutTimer = setTimeout(handleLogout, 300000); // 5 minutes (300,000 ms)
     };
   
     resetTimer();
@@ -101,29 +109,55 @@ const AdminLogin = () => {
       clearTimeout(logoutTimer);
     };
   }, [navigate]);
-  
 
   return (
-    <div className="container">
+    <div className="auth-container">
       <div className="login-card">
-        <h1 className="title">Admin Login</h1>
-        <input 
-          type="email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          placeholder="Email" 
-          className="input"
-        />
-        <input 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          placeholder="Password" 
-          className="input"
-        />
-        <button onClick={handleLogin} className="button">Login</button>
-        {error && <p className="error">{error}</p>}
-        <p>Don't have an account? <a href="/register">Register here</a></p>
+        <h1 className="title">Welcome Back</h1>
+        <p className="subtitle">Please sign in to your account</p>
+        
+        <form onSubmit={handleLogin} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input 
+              id="email"
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              placeholder="Enter your email"
+              className="input"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input 
+              id="password"
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              placeholder="Enter your password"
+              className="input"
+              disabled={isLoading}
+            />
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <button 
+            type="submit" 
+            className={`submit-button ${isLoading ? 'loading' : ''}`}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="auth-footer">
+          <p>Don't have an account? <Link to="/register" className="auth-link">Register here</Link></p>
+          <Link to="/" className="back-link">← Back to Home</Link>
+        </div>
       </div>
     </div>
   );
